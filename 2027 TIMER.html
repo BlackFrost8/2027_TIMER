@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class of 2027 Graduation Countdown</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .background-text {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: -1;
+            opacity: 0.2;
+            user-select: none;
+        }
+
+        .background-text span {
+            font-size: 40vw;
+            font-weight: 900;
+            color: #ff0000;
+            filter: blur(8px);
+            letter-spacing: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            z-index: 1;
+        }
+
+        header {
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #ff0000;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #ddd;
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            margin-bottom: 30px;
+        }
+
+        .target-date {
+            background-color: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff0000;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 0 auto 40px;
+            max-width: 600px;
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+        }
+
+        .countdown-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .countdown-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .countdown-container {
+                grid-template-columns: 1fr;
+                max-width: 300px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+
+        .countdown-box {
+            background: rgba(20, 20, 20, 0.8);
+            border: 2px solid #ff0000;
+            border-radius: 10px;
+            padding: 25px 15px;
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .countdown-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 0, 0, 0.3);
+        }
+
+        .countdown-value {
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
+            font-weight: 700;
+            color: #ff0000;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        .countdown-label {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            color: #ddd;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .graduation-icon {
+            font-size: 50px;
+            color: #ff0000;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        .message {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: rgba(255, 0, 0, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid #ff0000;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            line-height: 1.6;
+        }
+
+        footer {
+            margin-top: 30px;
+            padding: 20px;
+            color: #888;
+            font-size: 0.9rem;
+            border-top: 1px solid #333;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .highlight {
+            color: #ff0000;
+            font-weight: bold;
+        }
+
+        .effect-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #ff0000;
+            opacity: 0;
+        }
+
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ff0000;
+            opacity: 0;
+        }
+
+        .pulse-effect {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid #ff0000;
+            opacity: 0;
+        }
+
+        .minute-dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ff0000;
+            opacity: 0;
+            box-shadow: 0 0 10px #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-text">
+        <span>2027</span>
+    </div>
+
+    <div class="effect-overlay" id="effect-overlay"></div>
+
+    <div class="container">
+        <header>
+            <div class="graduation-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1>Class of 2027 Graduation Countdown</h1>
+            <p class="subtitle">Counting down to the day we become graduates!</p>
+        </header>
+
+        <div class="target-date">
+            <p><i class="fas fa-calendar-alt"></i> Target Date: <span class="highlight">May 23, 2027</span></p>
+        </div>
+
+        <div class="countdown-container">
+            <div class="countdown-box">
+                <div class="countdown-value" id="months">00</div>
+                <div class="countdown-label">Months</div>
+            </div>
+            <div class="countdown-box">
+                <div class="countdown-value" id="weeks">00</div>
+                <div class="countdown-label">Weeks</div>
+            </div>
+            <div class="countdown-box">
+                <div class="countdown-value" id="days">00</div>
+                <div class="countdown-label">Days</div>
+            </div>
+            <div class="countdown-box">
+                <div class="countdown-value" id="hours">00</div>
+                <div class="countdown-label">Hours</div>
+            </div>
+            <div class="countdown-box">
+                <div class="countdown-value" id="minutes">00</div>
+                <div class="countdown-label">Minutes</div>
+            </div>
+            <div class="countdown-box">
+                <div class="countdown-value" id="seconds">00</div>
+                <div class="countdown-label">Seconds</div>
+            </div>
+        </div>
+
+        <div class="message">
+            <p>Every second brings us closer to graduation day! Let's make the most of our remaining time together as we prepare for the future. Stay focused, work hard, and cherish every moment of our final journey as the Class of 2027.</p>
+        </div>
+
+        <footer>
+            <p>Made with <span class="highlight">♥</span> for the Class of 2027 | Countdown updates in real-time</p>
+            <p>Graduation Date: May 23, 2027</p>
+        </footer>
+    </div>
+
+    <script>
+        const targetDate = new Date('May 23, 2027 00:00:00').getTime();
+        let lastDays = 0;
+        let lastWeeks = 0;
+        let lastMonths = 0;
+        let lastMinutes = 0;
+        
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const timeRemaining = targetDate - now;
+
+            const months = Math.floor(timeRemaining / (1000 * 60 * 60 * 24 * 30.44));
+            const weeks = Math.floor((timeRemaining % (1000 * 60 * 60 * 24 * 30.44)) / (1000 * 60 * 60 * 24 * 7));
+            const days = Math.floor((timeRemaining % (1000 * 60 * 60 * 24 * 7)) / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+            document.getElementById('months').textContent = months.toString().padStart(2, '0');
+            document.getElementById('weeks').textContent = weeks.toString().padStart(2, '0');
+            document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+
+            if (days !== lastDays && lastDays > 0) {
+                createDayEndEffect();
+            }
+            
+            if (weeks !== lastWeeks && lastWeeks > 0) {
+                createWeekEndEffect();
+            }
+            
+            if (months !== lastMonths && lastMonths > 0) {
+                createMonthEndEffect();
+            }
+            
+            if (minutes !== lastMinutes && lastMinutes > 0) {
+                createMinuteEndEffect();
+            }
+            
+            lastDays = days;
+            lastWeeks = weeks;
+            lastMonths = months;
+            lastMinutes = minutes;
+
+            if (timeRemaining < 0) {
+                clearInterval(countdownInterval);
+                document.querySelector('.countdown-container').innerHTML = `
+                    <div style="grid-column: 1 / -1; padding: 40px;">
+                        <h2 style="color: #ff0000; font-size: 2.5rem;">🎓 CONGRATULATIONS CLASS OF 2027! 🎓</h2>
+                        <p style="font-size: 1.5rem; margin-top: 20px;">We did it! Today is our graduation day!</p>
+                    </div>
+                `;
+            }
+        }
+
+        function createDayEndEffect() {
+            const overlay = document.getElementById('effect-overlay');
+            
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10px';
+                confetti.style.backgroundColor = i % 3 === 0 ? '#ff0000' : i % 3 === 1 ? '#ff6b6b' : '#ff3333';
+                overlay.appendChild(confetti);
+                
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 2 + Math.random() * 3;
+                const rotation = Math.random() * 360;
+                
+                const animation = confetti.animate([
+                    { 
+                        transform: `translate(0, 0) rotate(0deg)`,
+                        opacity: 1
+                    },
+                    { 
+                        transform: `translate(${Math.cos(angle) * 100}px, 100vh) rotate(${rotation}deg)`,
+                        opacity: 0
+                    }
+                ], {
+                    duration: 2000,
+                    easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)'
+                });
+                
+                animation.onfinish = () => confetti.remove();
+            }
+            
+            const pulse = document.createElement('div');
+            pulse.className = 'pulse-effect';
+            pulse.style.left = '50%';
+            pulse.style.top = '50%';
+            pulse.style.transform = 'translate(-50%, -50%)';
+            overlay.appendChild(pulse);
+            
+            pulse.animate([
+                { 
+                    width: '0px',
+                    height: '0px',
+                    opacity: 0.8
+                },
+                { 
+                    width: '300px',
+                    height: '300px',
+                    opacity: 0
+                }
+            ], {
+                duration: 1000,
+                easing: 'ease-out'
+            }).onfinish = () => pulse.remove();
+        }
+
+        function createWeekEndEffect() {
+            const overlay = document.getElementById('effect-overlay');
+            
+            for (let i = 0; i < 7; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.left = (20 + i * 10) + '%';
+                    firework.style.top = '50%';
+                    firework.style.backgroundColor = '#ff0000';
+                    overlay.appendChild(firework);
+                    
+                    firework.animate([
+                        { 
+                            transform: 'scale(1)',
+                            opacity: 1,
+                            boxShadow: '0 0 5px #ff0000'
+                        },
+                        { 
+                            transform: 'scale(0)',
+                            opacity: 0,
+                            boxShadow: '0 0 30px #ff0000'
+                        }
+                    ], {
+                        duration: 800,
+                        easing: 'ease-out'
+                    }).onfinish = () => firework.remove();
+                    
+                    setTimeout(() => {
+                        for (let j = 0; j < 12; j++) {
+                            const particle = document.createElement('div');
+                            particle.className = 'confetti';
+                            particle.style.left = (20 + i * 10) + '%';
+                            particle.style.top = '50%';
+                            particle.style.backgroundColor = j % 2 === 0 ? '#ff0000' : '#ff6b6b';
+                            overlay.appendChild(particle);
+                            
+                            const angle = (j / 12) * Math.PI * 2;
+                            particle.animate([
+                                { 
+                                    transform: 'translate(0, 0)',
+                                    opacity: 1
+                                },
+                                { 
+                                    transform: `translate(${Math.cos(angle) * 100}px, ${Math.sin(angle) * 100}px)`,
+                                    opacity: 0
+                                }
+                            ], {
+                                duration: 1200,
+                                easing: 'ease-out'
+                            }).onfinish = () => particle.remove();
+                        }
+                    }, 400);
+                }, i * 150);
+            }
+        }
+
+        function createMonthEndEffect() {
+            const overlay = document.getElementById('effect-overlay');
+            
+            const colors = ['#ff0000', '#ff3333', '#ff6666', '#ff9999', '#ffcccc'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.left = Math.random() * 100 + '%';
+                    firework.style.top = Math.random() * 100 + '%';
+                    firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    overlay.appendChild(firework);
+                    
+                    firework.animate([
+                        { 
+                            transform: 'scale(1)',
+                            opacity: 1,
+                            boxShadow: '0 0 10px currentColor'
+                        },
+                        { 
+                            transform: 'scale(3)',
+                            opacity: 0,
+                            boxShadow: '0 0 50px currentColor'
+                        }
+                    ], {
+                        duration: 1500,
+                        easing: 'ease-out'
+                    }).onfinish = () => firework.remove();
+                }, i * 50);
+            }
+            
+            const bigPulse = document.createElement('div');
+            bigPulse.className = 'pulse-effect';
+            bigPulse.style.left = '50%';
+            bigPulse.style.top = '50%';
+            bigPulse.style.transform = 'translate(-50%, -50%)';
+            bigPulse.style.borderColor = '#ff0000';
+            overlay.appendChild(bigPulse);
+            
+            bigPulse.animate([
+                { 
+                    width: '0px',
+                    height: '0px',
+                    opacity: 1,
+                    borderWidth: '5px'
+                },
+                { 
+                    width: '500px',
+                    height: '500px',
+                    opacity: 0,
+                    borderWidth: '1px'
+                }
+            ], {
+                duration: 2000,
+                easing: 'ease-out'
+            }).onfinish = () => bigPulse.remove();
+            
+            document.querySelectorAll('.countdown-box').forEach(box => {
+                box.animate([
+                    { transform: 'scale(1)' },
+                    { transform: 'scale(1.1)' },
+                    { transform: 'scale(1)' }
+                ], {
+                    duration: 500,
+                    easing: 'ease-in-out'
+                });
+            });
+        }
+
+        function createMinuteEndEffect() {
+            const overlay = document.getElementById('effect-overlay');
+            const minuteBox = document.getElementById('minutes');
+            
+            minuteBox.animate([
+                { color: '#ff0000' },
+                { color: '#ffffff' },
+                { color: '#ff0000' }
+            ], {
+                duration: 1000,
+                easing: 'ease-in-out'
+            });
+            
+            for (let i = 0; i < 60; i++) {
+                setTimeout(() => {
+                    const dot = document.createElement('div');
+                    dot.className = 'minute-dot';
+                    dot.style.left = Math.random() * 100 + '%';
+                    dot.style.top = Math.random() * 100 + '%';
+                    dot.style.backgroundColor = i % 2 === 0 ? '#ff0000' : '#ff6666';
+                    overlay.appendChild(dot);
+                    
+                    dot.animate([
+                        { 
+                            transform: 'scale(0)',
+                            opacity: 1
+                        },
+                        { 
+                            transform: 'scale(2)',
+                            opacity: 0
+                        }
+                    ], {
+                        duration: 800,
+                        easing: 'ease-out'
+                    }).onfinish = () => dot.remove();
+                }, i * 30);
+            }
+            
+            const minutePulse = document.createElement('div');
+            minutePulse.className = 'pulse-effect';
+            minutePulse.style.left = '50%';
+            minutePulse.style.top = '50%';
+            minutePulse.style.transform = 'translate(-50%, -50%)';
+            minutePulse.style.borderColor = '#ff6666';
+            overlay.appendChild(minutePulse);
+            
+            minutePulse.animate([
+                { 
+                    width: '0px',
+                    height: '0px',
+                    opacity: 0.6,
+                    borderWidth: '3px'
+                },
+                { 
+                    width: '200px',
+                    height: '200px',
+                    opacity: 0,
+                    borderWidth: '1px'
+                }
+            ], {
+                duration: 1500,
+                easing: 'ease-out'
+            }).onfinish = () => minutePulse.remove();
+        }
+
+        const countdownInterval = setInterval(updateCountdown, 1000);
+
+        updateCountdown();
+
+        function adjustBackground() {
+            const backgroundText = document.querySelector('.background-text span');
+            if (window.innerWidth <= 768) {
+                backgroundText.style.filter = 'blur(6px)';
+                backgroundText.style.fontSize = '30vh';
+            } else {
+                backgroundText.style.filter = 'blur(8px)';
+                backgroundText.style.fontSize = '40vw';
+            }
+        }
+
+        window.addEventListener('load', adjustBackground);
+        window.addEventListener('resize', adjustBackground);
+    </script>
+</body>
+</html>
