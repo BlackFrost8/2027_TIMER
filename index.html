@@ -124,6 +124,13 @@
             color: #ff0000;
             margin-bottom: 5px;
             text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .countdown-value.changing {
+            transform: translateY(-5px);
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
         }
 
         .countdown-label {
@@ -281,51 +288,127 @@
     </div>
 
     <script>
-        const targetDate = new Date('May 23, 2027 00:00:00').getTime();
-        let lastDays = 0;
-        let lastWeeks = 0;
-        let lastMonths = 0;
-        let lastMinutes = 0;
+        const targetDate = new Date('May 23, 2027 00:00:00');
+        let lastDays = -1;
+        let lastWeeks = -1;
+        let lastMonths = -1;
+        let lastMinutes = -1;
+        let lastHours = -1;
+        let lastSeconds = -1;
+        
+        function calculateMonthsRemaining() {
+            const now = new Date();
+            let months = 0;
+            
+            let tempDate = new Date(now);
+            
+            while (tempDate < targetDate) {
+                tempDate.setMonth(tempDate.getMonth() + 1);
+                if (tempDate <= targetDate) {
+                    months++;
+                }
+            }
+            
+            return months;
+        }
+        
+        function calculateExactTimeRemaining() {
+            const now = new Date();
+            let timeRemaining = targetDate.getTime() - now.getTime();
+            
+            if (timeRemaining < 0) {
+                return { months: 0, weeks: 0, days: 0, hours: 0, minutes: 0, seconds: 0 };
+            }
+            
+            const months = calculateMonthsRemaining();
+            
+            const monthsDate = new Date(now);
+            monthsDate.setMonth(monthsDate.getMonth() + months);
+            
+            const remainingAfterMonths = targetDate.getTime() - monthsDate.getTime();
+            
+            const weeks = Math.floor(remainingAfterMonths / (1000 * 60 * 60 * 24 * 7));
+            const days = Math.floor((remainingAfterMonths % (1000 * 60 * 60 * 24 * 7)) / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((remainingAfterMonths % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((remainingAfterMonths % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((remainingAfterMonths % (1000 * 60)) / 1000);
+            
+            return { months, weeks, days, hours, minutes, seconds };
+        }
+        
+        function animateValueChange(elementId, newValue) {
+            const element = document.getElementById(elementId);
+            if (element.textContent !== newValue) {
+                element.classList.add('changing');
+                setTimeout(() => {
+                    element.textContent = newValue;
+                    element.classList.remove('changing');
+                }, 150);
+            } else {
+                element.textContent = newValue;
+            }
+        }
         
         function updateCountdown() {
-            const now = new Date().getTime();
-            const timeRemaining = targetDate - now;
-
-            const months = Math.floor(timeRemaining / (1000 * 60 * 60 * 24 * 30.44));
-            const weeks = Math.floor((timeRemaining % (1000 * 60 * 60 * 24 * 30.44)) / (1000 * 60 * 60 * 24 * 7));
-            const days = Math.floor((timeRemaining % (1000 * 60 * 60 * 24 * 7)) / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-
-            document.getElementById('months').textContent = months.toString().padStart(2, '0');
-            document.getElementById('weeks').textContent = weeks.toString().padStart(2, '0');
-            document.getElementById('days').textContent = days.toString().padStart(2, '0');
-            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
-            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
-            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
-
-            if (days !== lastDays && lastDays > 0) {
+            const { months, weeks, days, hours, minutes, seconds } = calculateExactTimeRemaining();
+            
+            animateValueChange('months', months.toString().padStart(2, '0'));
+            animateValueChange('weeks', weeks.toString().padStart(2, '0'));
+            animateValueChange('days', days.toString().padStart(2, '0'));
+            animateValueChange('hours', hours.toString().padStart(2, '0'));
+            animateValueChange('minutes', minutes.toString().padStart(2, '0'));
+            animateValueChange('seconds', seconds.toString().padStart(2, '0'));
+            
+            if (seconds !== lastSeconds && lastSeconds !== -1) {
+                const secondBox = document.getElementById('seconds');
+                secondBox.animate([
+                    { transform: 'scale(1)' },
+                    { transform: 'scale(1.1)' },
+                    { transform: 'scale(1)' }
+                ], {
+                    duration: 300,
+                    easing: 'ease-in-out'
+                });
+            }
+            
+            if (minutes !== lastMinutes && lastMinutes !== -1) {
+                createMinuteEndEffect();
+            }
+            
+            if (hours !== lastHours && lastHours !== -1) {
+                const hourBox = document.getElementById('hours');
+                hourBox.animate([
+                    { color: '#ff0000' },
+                    { color: '#ff6666' },
+                    { color: '#ff0000' }
+                ], {
+                    duration: 500,
+                    easing: 'ease-in-out'
+                });
+            }
+            
+            if (days !== lastDays && lastDays !== -1) {
                 createDayEndEffect();
             }
             
-            if (weeks !== lastWeeks && lastWeeks > 0) {
+            if (weeks !== lastWeeks && lastWeeks !== -1) {
                 createWeekEndEffect();
             }
             
-            if (months !== lastMonths && lastMonths > 0) {
+            if (months !== lastMonths && lastMonths !== -1) {
                 createMonthEndEffect();
-            }
-            
-            if (minutes !== lastMinutes && lastMinutes > 0) {
-                createMinuteEndEffect();
             }
             
             lastDays = days;
             lastWeeks = weeks;
             lastMonths = months;
             lastMinutes = minutes;
-
+            lastHours = hours;
+            lastSeconds = seconds;
+            
+            const now = new Date().getTime();
+            const timeRemaining = targetDate.getTime() - now;
+            
             if (timeRemaining < 0) {
                 clearInterval(countdownInterval);
                 document.querySelector('.countdown-container').innerHTML = `
@@ -349,7 +432,6 @@
                 overlay.appendChild(confetti);
                 
                 const angle = Math.random() * Math.PI * 2;
-                const velocity = 2 + Math.random() * 3;
                 const rotation = Math.random() * 360;
                 
                 const animation = confetti.animate([
