@@ -165,7 +165,7 @@
         }
 
         footer {
-            margin-top: 30px;
+            margin: 30px auto 0;
             padding: 20px;
             color: #888;
             font-size: 0.9rem;
@@ -176,6 +176,12 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            gap: 8px;
+            text-align: center;
+        }
+
+        footer p {
+            width: 100%;
             text-align: center;
         }
 
@@ -192,7 +198,7 @@
             height: 100%;
             pointer-events: none;
             z-index: 10;
-            opacity: 0;
+            opacity: 1;
         }
 
         .confetti {
@@ -217,6 +223,79 @@
             border-radius: 50%;
             border: 2px solid #ff0000;
             opacity: 0;
+        }
+
+        .graduation-celebration {
+            grid-column: 1 / -1;
+            position: relative;
+            overflow: hidden;
+            min-height: 420px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 50px 20px;
+            border: 3px solid #ff0000;
+            border-radius: 24px;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.18), transparent 22%),
+                radial-gradient(circle at 80% 30%, rgba(255, 0, 0, 0.28), transparent 28%),
+                linear-gradient(135deg, rgba(255, 0, 0, 0.22), rgba(20, 20, 20, 0.95));
+            box-shadow: 0 0 45px rgba(255, 0, 0, 0.45);
+            animation: celebrationGlow 2s ease-in-out infinite;
+        }
+
+        .made-it-text {
+            position: relative;
+            z-index: 2;
+            color: #fff;
+            font-size: clamp(3.5rem, 13vw, 9rem);
+            font-weight: 900;
+            letter-spacing: clamp(2px, 1vw, 10px);
+            text-transform: uppercase;
+            text-shadow:
+                0 0 12px rgba(255, 255, 255, 0.9),
+                0 0 24px rgba(255, 0, 0, 0.9),
+                0 0 45px rgba(255, 0, 0, 0.7);
+            animation: madeItBounce 1.25s ease-in-out infinite;
+        }
+
+        .celebration-subtitle {
+            position: relative;
+            z-index: 2;
+            color: #fff;
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            font-weight: 700;
+            text-shadow: 0 0 12px rgba(255, 0, 0, 0.9);
+            animation: subtitlePulse 1.8s ease-in-out infinite;
+        }
+
+        .celebration-emoji {
+            display: inline-block;
+            animation: emojiSpin 1.5s linear infinite;
+        }
+
+        @keyframes celebrationGlow {
+            0%, 100% { box-shadow: 0 0 35px rgba(255, 0, 0, 0.4); }
+            50% { box-shadow: 0 0 75px rgba(255, 0, 0, 0.85); }
+        }
+
+        @keyframes madeItBounce {
+            0%, 100% { transform: scale(1) rotate(-1deg); }
+            35% { transform: scale(1.12) rotate(1deg); }
+            65% { transform: scale(0.98) rotate(0deg); }
+        }
+
+        @keyframes subtitlePulse {
+            0%, 100% { opacity: 0.75; transform: translateY(0); }
+            50% { opacity: 1; transform: translateY(-6px); }
+        }
+
+        @keyframes emojiSpin {
+            from { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            to { transform: rotate(360deg) scale(1); }
         }
 
         .minute-dot {
@@ -247,7 +326,7 @@
         </header>
 
         <div class="target-date">
-            <p><i class="fas fa-calendar-alt"></i> Target Date: <span class="highlight">May 23, 2027</span></p>
+            <p><i class="fas fa-calendar-alt"></i> Target Date: <span class="highlight">May 30, 2027</span></p>
         </div>
 
         <div class="countdown-container">
@@ -283,18 +362,20 @@
 
         <footer>
             <p>Made with <span class="highlight">♥</span> for the Class of 2027 | Countdown updates in real-time</p>
-            <p>Graduation Date: May 23, 2027</p>
+            <p>Graduation Date: May 30, 2027</p>
         </footer>
     </div>
 
     <script>
-        const targetDate = new Date('May 23, 2027 00:00:00');
+        const targetDate = new Date('May 30, 2027 00:00:00');
         let lastDays = -1;
         let lastWeeks = -1;
         let lastMonths = -1;
         let lastMinutes = -1;
         let lastHours = -1;
         let lastSeconds = -1;
+        let countdownComplete = false;
+        let celebrationInterval;
         
         function calculateMonthsRemaining() {
             const now = new Date();
@@ -409,14 +490,108 @@
             const now = new Date().getTime();
             const timeRemaining = targetDate.getTime() - now;
             
-            if (timeRemaining < 0) {
-                clearInterval(countdownInterval);
-                document.querySelector('.countdown-container').innerHTML = `
-                    <div style="grid-column: 1 / -1; padding: 40px;">
-                        <h2 style="color: #ff0000; font-size: 2.5rem;">🎓 CONGRATULATIONS CLASS OF 2027! 🎓</h2>
-                        <p style="font-size: 1.5rem; margin-top: 20px;">We did it! Today is our graduation day!</p>
-                    </div>
-                `;
+            if (timeRemaining <= 0) {
+                showGraduationCelebration();
+            }
+        }
+
+        function showGraduationCelebration() {
+            if (countdownComplete) {
+                return;
+            }
+
+            countdownComplete = true;
+            clearInterval(countdownInterval);
+            document.querySelector('.countdown-container').innerHTML = `
+                <div class="graduation-celebration" aria-live="polite">
+                    <div class="made-it-text">WE MADE IT!</div>
+                    <p class="celebration-subtitle">
+                        <span class="celebration-emoji">🎓</span>
+                        Congratulations, Class of 2027!
+                        <span class="celebration-emoji">🎉</span>
+                    </p>
+                </div>
+            `;
+            launchCelebrationBurst();
+            celebrationInterval = setInterval(launchCelebrationBurst, 2600);
+        }
+
+        function launchCelebrationBurst() {
+            createMegaConfetti(120);
+            createCelebrationFireworks(8);
+        }
+
+        function createMegaConfetti(amount) {
+            const overlay = document.getElementById('effect-overlay');
+            const colors = ['#ff0000', '#ffffff', '#ffd700', '#ff6b6b', '#00d4ff', '#7CFC00'];
+
+            for (let i = 0; i < amount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-20px';
+                confetti.style.width = (8 + Math.random() * 12) + 'px';
+                confetti.style.height = (8 + Math.random() * 16) + 'px';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                overlay.appendChild(confetti);
+
+                const drift = (Math.random() - 0.5) * 320;
+                const rotation = 360 + Math.random() * 1080;
+
+                confetti.animate([
+                    {
+                        transform: 'translate(0, 0) rotate(0deg)',
+                        opacity: 1
+                    },
+                    {
+                        transform: `translate(${drift}px, 110vh) rotate(${rotation}deg)`,
+                        opacity: 0.95
+                    }
+                ], {
+                    duration: 2600 + Math.random() * 1800,
+                    easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)'
+                }).onfinish = () => confetti.remove();
+            }
+        }
+
+        function createCelebrationFireworks(amount) {
+            const overlay = document.getElementById('effect-overlay');
+            const colors = ['#ff0000', '#ffffff', '#ffd700', '#00d4ff'];
+
+            for (let i = 0; i < amount; i++) {
+                setTimeout(() => {
+                    const originX = 15 + Math.random() * 70;
+                    const originY = 18 + Math.random() * 55;
+
+                    for (let j = 0; j < 24; j++) {
+                        const particle = document.createElement('div');
+                        particle.className = 'firework';
+                        particle.style.left = originX + '%';
+                        particle.style.top = originY + '%';
+                        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                        overlay.appendChild(particle);
+
+                        const angle = (j / 24) * Math.PI * 2;
+                        const distance = 80 + Math.random() * 110;
+
+                        particle.animate([
+                            {
+                                transform: 'translate(0, 0) scale(1)',
+                                opacity: 1,
+                                boxShadow: '0 0 12px currentColor'
+                            },
+                            {
+                                transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0)`,
+                                opacity: 0,
+                                boxShadow: '0 0 35px currentColor'
+                            }
+                        ], {
+                            duration: 1200 + Math.random() * 600,
+                            easing: 'ease-out'
+                        }).onfinish = () => particle.remove();
+                    }
+                }, i * 220);
             }
         }
 
