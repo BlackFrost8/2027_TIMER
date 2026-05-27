@@ -357,7 +357,7 @@
         </div>
 
         <div class="message">
-            <p>Every second brings us closer to graduation day! Let's make the most of our remaining time together as we prepare for the future. Stay focused, work hard, and cherish every moment of our final journey as the Class of 2027.</p>
+            <p>&ldquo;As we go through our last year of high school, let us work hard to achieve success and improve ourselves spiritually, academically, and physically&rdquo;</p>
         </div>
 
         <footer>
@@ -367,7 +367,12 @@
     </div>
 
     <script>
-        const targetDate = new Date('May 30, 2027 00:00:00');
+        const targetDate = new Date(2027, 4, 30, 0, 0, 0);
+        const MILLISECONDS_PER_SECOND = 1000;
+        const MILLISECONDS_PER_MINUTE = MILLISECONDS_PER_SECOND * 60;
+        const MILLISECONDS_PER_HOUR = MILLISECONDS_PER_MINUTE * 60;
+        const MILLISECONDS_PER_DAY = MILLISECONDS_PER_HOUR * 24;
+        const MILLISECONDS_PER_WEEK = MILLISECONDS_PER_DAY * 7;
         let lastDays = -1;
         let lastWeeks = -1;
         let lastMonths = -1;
@@ -376,47 +381,56 @@
         let lastSeconds = -1;
         let countdownComplete = false;
         let celebrationInterval;
-        
-        function calculateMonthsRemaining() {
-            const now = new Date();
+
+        function getDaysInMonth(year, monthIndex) {
+            return new Date(year, monthIndex + 1, 0).getDate();
+        }
+
+        function addCalendarMonths(date, monthsToAdd) {
+            const result = new Date(date);
+            const originalDay = result.getDate();
+
+            result.setDate(1);
+            result.setMonth(result.getMonth() + monthsToAdd);
+            result.setDate(Math.min(originalDay, getDaysInMonth(result.getFullYear(), result.getMonth())));
+
+            return result;
+        }
+
+        function calculateMonthsRemaining(now = new Date()) {
             let months = 0;
-            
-            let tempDate = new Date(now);
-            
-            while (tempDate < targetDate) {
-                tempDate.setMonth(tempDate.getMonth() + 1);
-                if (tempDate <= targetDate) {
-                    months++;
-                }
+
+            while (addCalendarMonths(now, months + 1) <= targetDate) {
+                months++;
             }
-            
+
             return months;
         }
-        
-        function calculateExactTimeRemaining() {
-            const now = new Date();
-            let timeRemaining = targetDate.getTime() - now.getTime();
-            
-            if (timeRemaining < 0) {
+
+        function calculateExactTimeRemaining(now = new Date()) {
+            const timeRemaining = targetDate.getTime() - now.getTime();
+
+            if (timeRemaining <= 0) {
                 return { months: 0, weeks: 0, days: 0, hours: 0, minutes: 0, seconds: 0 };
             }
-            
-            const months = calculateMonthsRemaining();
-            
-            const monthsDate = new Date(now);
-            monthsDate.setMonth(monthsDate.getMonth() + months);
-            
-            const remainingAfterMonths = targetDate.getTime() - monthsDate.getTime();
-            
-            const weeks = Math.floor(remainingAfterMonths / (1000 * 60 * 60 * 24 * 7));
-            const days = Math.floor((remainingAfterMonths % (1000 * 60 * 60 * 24 * 7)) / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((remainingAfterMonths % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((remainingAfterMonths % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((remainingAfterMonths % (1000 * 60)) / 1000);
-            
+
+            const months = calculateMonthsRemaining(now);
+            const monthsDate = addCalendarMonths(now, months);
+            let remainingAfterMonths = targetDate.getTime() - monthsDate.getTime();
+
+            const weeks = Math.floor(remainingAfterMonths / MILLISECONDS_PER_WEEK);
+            remainingAfterMonths %= MILLISECONDS_PER_WEEK;
+            const days = Math.floor(remainingAfterMonths / MILLISECONDS_PER_DAY);
+            remainingAfterMonths %= MILLISECONDS_PER_DAY;
+            const hours = Math.floor(remainingAfterMonths / MILLISECONDS_PER_HOUR);
+            remainingAfterMonths %= MILLISECONDS_PER_HOUR;
+            const minutes = Math.floor(remainingAfterMonths / MILLISECONDS_PER_MINUTE);
+            remainingAfterMonths %= MILLISECONDS_PER_MINUTE;
+            const seconds = Math.floor(remainingAfterMonths / MILLISECONDS_PER_SECOND);
+
             return { months, weeks, days, hours, minutes, seconds };
         }
-        
+
         function animateValueChange(elementId, newValue) {
             const element = document.getElementById(elementId);
             if (element.textContent !== newValue) {
@@ -429,17 +443,17 @@
                 element.textContent = newValue;
             }
         }
-        
+
         function updateCountdown() {
             const { months, weeks, days, hours, minutes, seconds } = calculateExactTimeRemaining();
-            
+
             animateValueChange('months', months.toString().padStart(2, '0'));
             animateValueChange('weeks', weeks.toString().padStart(2, '0'));
             animateValueChange('days', days.toString().padStart(2, '0'));
             animateValueChange('hours', hours.toString().padStart(2, '0'));
             animateValueChange('minutes', minutes.toString().padStart(2, '0'));
             animateValueChange('seconds', seconds.toString().padStart(2, '0'));
-            
+
             if (seconds !== lastSeconds && lastSeconds !== -1) {
                 const secondBox = document.getElementById('seconds');
                 secondBox.animate([
@@ -451,11 +465,11 @@
                     easing: 'ease-in-out'
                 });
             }
-            
+
             if (minutes !== lastMinutes && lastMinutes !== -1) {
                 createMinuteEndEffect();
             }
-            
+
             if (hours !== lastHours && lastHours !== -1) {
                 const hourBox = document.getElementById('hours');
                 hourBox.animate([
@@ -467,29 +481,29 @@
                     easing: 'ease-in-out'
                 });
             }
-            
+
             if (days !== lastDays && lastDays !== -1) {
                 createDayEndEffect();
             }
-            
+
             if (weeks !== lastWeeks && lastWeeks !== -1) {
                 createWeekEndEffect();
             }
-            
+
             if (months !== lastMonths && lastMonths !== -1) {
                 createMonthEndEffect();
             }
-            
+
             lastDays = days;
             lastWeeks = weeks;
             lastMonths = months;
             lastMinutes = minutes;
             lastHours = hours;
             lastSeconds = seconds;
-            
+
             const now = new Date().getTime();
             const timeRemaining = targetDate.getTime() - now;
-            
+
             if (timeRemaining <= 0) {
                 showGraduationCelebration();
             }
@@ -597,7 +611,7 @@
 
         function createDayEndEffect() {
             const overlay = document.getElementById('effect-overlay');
-            
+
             for (let i = 0; i < 30; i++) {
                 const confetti = document.createElement('div');
                 confetti.className = 'confetti';
@@ -605,16 +619,16 @@
                 confetti.style.top = '-10px';
                 confetti.style.backgroundColor = i % 3 === 0 ? '#ff0000' : i % 3 === 1 ? '#ff6b6b' : '#ff3333';
                 overlay.appendChild(confetti);
-                
+
                 const angle = Math.random() * Math.PI * 2;
                 const rotation = Math.random() * 360;
-                
+
                 const animation = confetti.animate([
-                    { 
+                    {
                         transform: `translate(0, 0) rotate(0deg)`,
                         opacity: 1
                     },
-                    { 
+                    {
                         transform: `translate(${Math.cos(angle) * 100}px, 100vh) rotate(${rotation}deg)`,
                         opacity: 0
                     }
@@ -622,24 +636,24 @@
                     duration: 2000,
                     easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)'
                 });
-                
+
                 animation.onfinish = () => confetti.remove();
             }
-            
+
             const pulse = document.createElement('div');
             pulse.className = 'pulse-effect';
             pulse.style.left = '50%';
             pulse.style.top = '50%';
             pulse.style.transform = 'translate(-50%, -50%)';
             overlay.appendChild(pulse);
-            
+
             pulse.animate([
-                { 
+                {
                     width: '0px',
                     height: '0px',
                     opacity: 0.8
                 },
-                { 
+                {
                     width: '300px',
                     height: '300px',
                     opacity: 0
@@ -652,7 +666,7 @@
 
         function createWeekEndEffect() {
             const overlay = document.getElementById('effect-overlay');
-            
+
             for (let i = 0; i < 7; i++) {
                 setTimeout(() => {
                     const firework = document.createElement('div');
@@ -661,14 +675,14 @@
                     firework.style.top = '50%';
                     firework.style.backgroundColor = '#ff0000';
                     overlay.appendChild(firework);
-                    
+
                     firework.animate([
-                        { 
+                        {
                             transform: 'scale(1)',
                             opacity: 1,
                             boxShadow: '0 0 5px #ff0000'
                         },
-                        { 
+                        {
                             transform: 'scale(0)',
                             opacity: 0,
                             boxShadow: '0 0 30px #ff0000'
@@ -677,7 +691,7 @@
                         duration: 800,
                         easing: 'ease-out'
                     }).onfinish = () => firework.remove();
-                    
+
                     setTimeout(() => {
                         for (let j = 0; j < 12; j++) {
                             const particle = document.createElement('div');
@@ -686,14 +700,14 @@
                             particle.style.top = '50%';
                             particle.style.backgroundColor = j % 2 === 0 ? '#ff0000' : '#ff6b6b';
                             overlay.appendChild(particle);
-                            
+
                             const angle = (j / 12) * Math.PI * 2;
                             particle.animate([
-                                { 
+                                {
                                     transform: 'translate(0, 0)',
                                     opacity: 1
                                 },
-                                { 
+                                {
                                     transform: `translate(${Math.cos(angle) * 100}px, ${Math.sin(angle) * 100}px)`,
                                     opacity: 0
                                 }
@@ -709,9 +723,9 @@
 
         function createMonthEndEffect() {
             const overlay = document.getElementById('effect-overlay');
-            
+
             const colors = ['#ff0000', '#ff3333', '#ff6666', '#ff9999', '#ffcccc'];
-            
+
             for (let i = 0; i < 50; i++) {
                 setTimeout(() => {
                     const firework = document.createElement('div');
@@ -720,14 +734,14 @@
                     firework.style.top = Math.random() * 100 + '%';
                     firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                     overlay.appendChild(firework);
-                    
+
                     firework.animate([
-                        { 
+                        {
                             transform: 'scale(1)',
                             opacity: 1,
                             boxShadow: '0 0 10px currentColor'
                         },
-                        { 
+                        {
                             transform: 'scale(3)',
                             opacity: 0,
                             boxShadow: '0 0 50px currentColor'
@@ -738,7 +752,7 @@
                     }).onfinish = () => firework.remove();
                 }, i * 50);
             }
-            
+
             const bigPulse = document.createElement('div');
             bigPulse.className = 'pulse-effect';
             bigPulse.style.left = '50%';
@@ -746,15 +760,15 @@
             bigPulse.style.transform = 'translate(-50%, -50%)';
             bigPulse.style.borderColor = '#ff0000';
             overlay.appendChild(bigPulse);
-            
+
             bigPulse.animate([
-                { 
+                {
                     width: '0px',
                     height: '0px',
                     opacity: 1,
                     borderWidth: '5px'
                 },
-                { 
+                {
                     width: '500px',
                     height: '500px',
                     opacity: 0,
@@ -764,7 +778,7 @@
                 duration: 2000,
                 easing: 'ease-out'
             }).onfinish = () => bigPulse.remove();
-            
+
             document.querySelectorAll('.countdown-box').forEach(box => {
                 box.animate([
                     { transform: 'scale(1)' },
@@ -780,7 +794,7 @@
         function createMinuteEndEffect() {
             const overlay = document.getElementById('effect-overlay');
             const minuteBox = document.getElementById('minutes');
-            
+
             minuteBox.animate([
                 { color: '#ff0000' },
                 { color: '#ffffff' },
@@ -789,7 +803,7 @@
                 duration: 1000,
                 easing: 'ease-in-out'
             });
-            
+
             for (let i = 0; i < 60; i++) {
                 setTimeout(() => {
                     const dot = document.createElement('div');
@@ -798,13 +812,13 @@
                     dot.style.top = Math.random() * 100 + '%';
                     dot.style.backgroundColor = i % 2 === 0 ? '#ff0000' : '#ff6666';
                     overlay.appendChild(dot);
-                    
+
                     dot.animate([
-                        { 
+                        {
                             transform: 'scale(0)',
                             opacity: 1
                         },
-                        { 
+                        {
                             transform: 'scale(2)',
                             opacity: 0
                         }
@@ -814,7 +828,7 @@
                     }).onfinish = () => dot.remove();
                 }, i * 30);
             }
-            
+
             const minutePulse = document.createElement('div');
             minutePulse.className = 'pulse-effect';
             minutePulse.style.left = '50%';
@@ -822,15 +836,15 @@
             minutePulse.style.transform = 'translate(-50%, -50%)';
             minutePulse.style.borderColor = '#ff6666';
             overlay.appendChild(minutePulse);
-            
+
             minutePulse.animate([
-                { 
+                {
                     width: '0px',
                     height: '0px',
                     opacity: 0.6,
                     borderWidth: '3px'
                 },
-                { 
+                {
                     width: '200px',
                     height: '200px',
                     opacity: 0,
